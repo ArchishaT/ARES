@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Explainable Phishing Detector",
+  "version": "1.0.0",
+  "description": "Analyzes the current tab's URL and explains, in plain English, which structural features make it look risky or safe.",
+  "permissions": ["activeTab", "tabs"],
+  "host_permissions": ["http://localhost:8010/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Phishing Detector"
+  },
+  "icons": {
+    "48": "icon.png"
+  }
+}

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phishing Detector — Model Comparison Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0e1012; --panel: #141719; --line: #262b2f; --text: #e6e9eb; --sub: #9aa4ab;
+    --accent: #38b6d9; --good: #3ecf6e; --bad: #e0463f;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family: ui-monospace, "JetBrains Mono", monospace; padding: 24px; }
+  h1 { font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .sub { color: var(--sub); font-size: 12px; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 1100px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px; }
+  .panel h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sub); margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  td, th { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+  th:first-child, td:first-child { text-align: left; color: var(--sub); }
+  .full { grid-column: 1 / -1; }
+  .note { font-size: 11px; color: var(--sub); margin-top: 8px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<h1>Phishing Detector — Model Comparison</h1>
+<div class="sub" id="meta">Loading results…</div>
+
+<div class="grid">
+  <div class="panel full">
+    <h2>Precision / Recall / F1 / False Positive Rate</h2>
+    <canvas id="metricsChart" height="90"></canvas>
+  </div>
+  <div class="panel">
+    <h2>Confusion Matrices</h2>
+    <table id="cmTable"></table>
+  </div>
+  <div class="panel">
+    <h2>Robustness: Recall on Adversarial Typosquat URLs</h2>
+    <canvas id="robustChart" height="140"></canvas>
+    <p class="note">These typosquat examples deliberately avoid the obvious signals (no urgent keywords, no odd TLD, HTTPS present) —
+    they test whether a model generalizes past surface patterns, not just the easy in-distribution cases above.</p>
+  </div>
+  <div class="panel full">
+    <h2>Top Feature Importance — Random Forest</h2>
+    <canvas id="rfImportance" height="80"></canvas>
+  </div>
+  <div class="panel full">
+    <h2>Feature Weights — Logistic Regression</h2>
+    <canvas id="lrImportance" height="80"></canvas>
+  </div>
+</div>
+
+<script>
+fetch('results.json').then(r => r.json()).then(data => {
+  document.getElementById('meta').textContent =
+    `Dataset: ${data.dataset_size} URLs (balanced synthetic) · Test set: ${data.test_size} URLs`;
+
+  const labels = data.results.map(r => r.model);
+  const mk = (key) => data.results.map(r => r[key]);
+
+  new Chart(document.getElementById('metricsChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Precision', data: mk('precision'), backgroundColor: '#38b6d9' },
+        { label: 'Recall', data: mk('recall'), backgroundColor: '#3ecf6e' },
+        { label: 'F1', data: mk('f1'), backgroundColor: '#e0a730' },
+        { label: 'False Positive Rate', data: mk('false_positive_rate'), backgroundColor: '#e0463f' },
+      ]
+    },
+    options: { responsive: true, scales: { y: { beginAtZero: true, max: 1 } },
+      plugins: { legend: { labels: { color: '#9aa4ab' } } } }
+  });
+
+  const cmTable = document.getElementById('cmTable');
+  cmTable.innerHTML = '<tr><th>Model</th><th>TP</th><th>TN</th><th>FP</th><th>FN</th></tr>' +
+    data.results.map(r => `<tr><td>${r.model}</td><td>${r.confusion_matrix.tp}</td><td>${r.confusion_matrix.tn}</td><td>${r.confusion_matrix.fp}</td><td>${r.confusion_matrix.fn}</td></tr>`).join('');
+
+  const robustLabels = Object.keys(data.robustness_recall_on_obfuscated);
+  new Chart(document.getElementById('robustChart'), {
+    type: 'bar',
+    data: {
+      labels: robustLabels,
+      datasets: [{ label: 'Recall on adversarial set', data: Object.values(data.robustness_recall_on_obfuscated), backgroundColor: '#e0463f' }]
+    },
+    options: { indexAxis: 'y', responsive: true, scales: { x: { beginAtZero: true, max: 1 } },
+      plugins: { legend: { display: false } } }
+  });
+
+  const rf = data.feature_importance.random_forest;
+  const rfSorted = Object.entries(rf).sort((a,b) => b[1]-a[1]);
+  new Chart(document.getElementById('rfImportance'), {
+    type: 'bar',
+    data: { labels: rfSorted.map(x=>x[0]), datasets: [{ label: 'Importance', data: rfSorted.map(x=>x[1]), backgroundColor: '#38b6d9' }] },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+  });
+
+  const lr = data.feature_importance.logistic_regression;
+  const lrSorted = Object.entries(lr).sort((a,b) => Math.abs(b[1])-Math.abs(a[1]));
+  new Chart(document.getElementById('lrImportance'), {
+    type: 'bar',
+    data: { labels: lrSorted.map(x=>x[0]), datasets: [{ label: 'Coefficient', data: lrSorted.map(x=>x[1]),
+      backgroundColor: lrSorted.map(x => x[1] >= 0 ? '#e0463f' : '#3ecf6e') }] },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+  });
+}).catch(e => {
+  document.getElementById('meta').textContent = 'Could not load results.json — run models/train.py first.';
+});
+</script>
+</body>
+</html>

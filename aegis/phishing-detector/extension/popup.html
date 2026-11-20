@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  body { width: 340px; margin: 0; padding: 14px; background: #0e1012; color: #e6e9eb;
+         font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 12px; }
+  h1 { font-size: 13px; margin: 0 0 4px; color: #38b6d9; letter-spacing: 0.05em; }
+  .url { color: #9aa4ab; word-break: break-all; margin-bottom: 10px; font-size: 10px; }
+  select { width: 100%; margin-bottom: 10px; background: #181c1f; color: #e6e9eb; border: 1px solid #33393e; padding: 4px; }
+  .verdict { font-size: 16px; font-weight: bold; padding: 10px; border-radius: 4px; margin-bottom: 10px; text-align: center; }
+  .safe { background: #1c4a2c; color: #3ecf6e; }
+  .risky { background: #4a1c1c; color: #e0463f; }
+  .prob { font-size: 11px; color: #9aa4ab; text-align: center; margin-top: -6px; margin-bottom: 10px; }
+  ul { padding-left: 16px; margin: 0; }
+  li { margin-bottom: 4px; color: #9aa4ab; }
+  .err { color: #e0463f; }
+  .loading { color: #9aa4ab; text-align: center; padding: 20px 0; }
+</style>
+</head>
+<body>
+  <h1>EXPLAINABLE PHISHING DETECTOR</h1>
+  <div class="url" id="url">—</div>
+  <select id="model">
+    <option value="random_forest">Random Forest</option>
+    <option value="logistic_regression">Logistic Regression</option>
+    <option value="neural_network">Neural Network</option>
+    <option value="rule_based">Rule-Based (no ML)</option>
+  </select>
+  <div id="result"><div class="loading">Analyzing current tab…</div></div>
+  <script src="popup.js"></script>
+</body>
+</html>

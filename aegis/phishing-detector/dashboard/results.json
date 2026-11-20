@@ -1,0 +1,117 @@
+{
+  "dataset_size": 3000,
+  "test_size": 750,
+  "results": [
+    {
+      "model": "rule_based",
+      "precision": 0.9214,
+      "recall": 1.0,
+      "f1": 0.9591,
+      "false_positive_rate": 0.0853,
+      "confusion_matrix": {
+        "tn": 343,
+        "fp": 32,
+        "fn": 0,
+        "tp": 375
+      }
+    },
+    {
+      "model": "logistic_regression",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": {
+        "tn": 375,
+        "fp": 0,
+        "fn": 0,
+        "tp": 375
+      }
+    },
+    {
+      "model": "random_forest",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": {
+        "tn": 375,
+        "fp": 0,
+        "fn": 0,
+        "tp": 375
+      }
+    },
+    {
+      "model": "neural_network",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positive_rate": 0.0,
+      "confusion_matrix": {
+        "tn": 375,
+        "fp": 0,
+        "fn": 0,
+        "tp": 375
+      }
+    }
+  ],
+  "feature_importance": {
+    "logistic_regression": {
+      "url_length": 0.266,
+      "num_dots": 0.378,
+      "num_hyphens": 1.2711,
+      "num_digits": 0.1064,
+      "num_subdomains": 0.378,
+      "has_ip_host": 0.5388,
+      "has_https": -3.2379,
+      "suspicious_tld": 1.2671,
+      "urgent_keyword_count": 1.8937,
+      "brand_in_subdomain_not_domain": 0.7081,
+      "path_entropy": 0.0652,
+      "has_at_symbol": 0.0,
+      "has_suspicious_port": 0.0,
+      "digit_letter_mix_in_domain": 0.8454,
+      "query_length": -0.1031
+    },
+    "random_forest": {
+      "url_length": 0.0195,
+      "num_dots": 0.0146,
+      "num_hyphens": 0.1084,
+      "num_digits": 0.0089,
+      "num_subdomains": 0.0151,
+      "has_ip_host": 0.0095,
+      "has_https": 0.3547,
+      "suspicious_tld": 0.0222,
+      "urgent_keyword_count": 0.2894,
+      "brand_in_subdomain_not_domain": 0.0519,
+      "path_entropy": 0.0232,
+      "has_at_symbol": 0.0,
+      "has_suspicious_port": 0.0,
+      "digit_letter_mix_in_domain": 0.0801,
+      "query_length": 0.0025
+    }
+  },
+  "robustness_recall_on_obfuscated": {
+    "rule_based": 0.4767,
+    "logistic_regression": 0.0,
+    "random_forest": 0.4767,
+    "neural_network": 0.0
+  },
+  "feature_names": [
+    "url_length",
+    "num_dots",
+    "num_hyphens",
+    "num_digits",
+    "num_subdomains",
+    "has_ip_host",
+    "has_https",
+    "suspicious_tld",
+    "urgent_keyword_count",
+    "brand_in_subdomain_not_domain",
+    "path_entropy",
+    "has_at_symbol",
+    "has_suspicious_port",
+    "digit_letter_mix_in_domain",
+    "query_length"
+  ]
+}
